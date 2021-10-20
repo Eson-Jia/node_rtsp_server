@@ -79,7 +79,7 @@ function handle(session: any, req: string, cb: CB) {
 
 function handleOptions(session: any, CSeq: string, cb: CB) {
     const response =
-    `RTSP/1.0 200 OK\r
+        `RTSP/1.0 200 OK\r
 CSeq: ${CSeq}\r
 Public: OPTIONS, DESCRIBE, SETUP, PLAY\r\n\r\n`;
     cb(response);
@@ -95,7 +95,7 @@ m=video 0 RTP/AVP 96\r
 a=rtpmap:96 H264/900000\r
 a=control:rtsp://192.168.1.72:8554/test/track0`;
     const response =
-    `RTSP/1.0 200 OK\r
+        `RTSP/1.0 200 OK\r
 CSeq: ${CSeq}\r
 Content-Type: application/sdp\r
 Content-Length: ${sdp.length}\r\n\r\n${sdp}`;
@@ -106,7 +106,7 @@ Content-Length: ${sdp.length}\r\n\r\n${sdp}`;
 function handleSetup(session: any, CSeq: string, cb: CB) {
     const { client_rtp, client_rtcp, server_rtp, server_rtcp } = session;
     const response =
-    `RTSP/1.0 200 OK\r
+        `RTSP/1.0 200 OK\r
 CSeq: ${CSeq}\r
 Transport: RTP/AVP;unicast;client_port=${client_rtp}-${client_rtcp};server_port=${server_rtp}-${server_rtcp}\r
 Session: 66334873\r\n\r\n`;
@@ -114,7 +114,7 @@ Session: 66334873\r\n\r\n`;
 }
 function handlePlay(session: any, CSeq: string, cb: CB) {
     const response =
-    `RTSP/1.0 200 OK\r
+        `RTSP/1.0 200 OK\r
 CSeq: ${CSeq}\r
 Range: npt=0.000-\r
 Session: 66334873; timeout=60\r\n\r\n`;
