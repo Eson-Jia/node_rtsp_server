@@ -1,0 +1,31 @@
+{
+  "name": "node_rtsp_server",
+  "version": "1.0.0",
+  "description": "a demo show how to use ts in node.js env",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/main.js",
+    "compile": "gulp compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eson-Jia/ts-node.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Eson-Jia/ts-node/issues"
+  },
+  "homepage": "https://github.com/Eson-Jia/ts-node#readme",
+  "devDependencies": {
+    "@types/node": "^12.20.11",
+    "del": "^3.0.0",
+    "gulp": "^4.0.2",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-typescript": "^5.0.1",
+    "gulp-watch": "^5.0.1",
+    "typescript": "^3.9.9"
+  },
+  "dependencies": {
+  }
+}
