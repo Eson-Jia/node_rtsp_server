@@ -123,9 +123,16 @@ Session: 66334873; timeout=60\r\n\r\n`;
 
 function main() {
     const server = createServer((socket) => {
-        const rtp = createSocket('udp4');
+        const [rtp, rtcp] = [createSocket('udp4'), createSocket('udp4')];
         const [server_rtp, server_rtcp] = [12345, 12346];
-        rtp.bind();
+        rtp.bind(server_rtp);
+        rtp.on('message', (msg) => {
+            console.log(msg);
+        });
+        rtcp.bind(server_rtcp);
+        rtcp.on('message', (msg) => {
+            console.log(msg);
+        });
         let host = '192.168.1.72';
         let session = { server_rtcp, server_rtp, host };
         let data = '';
