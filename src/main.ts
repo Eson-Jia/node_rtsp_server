@@ -127,11 +127,11 @@ function main() {
         const [server_rtp, server_rtcp] = [12345, 12346];
         rtp.bind(server_rtp);
         rtp.on('message', (msg) => {
-            console.log(msg);
+            console.debug('rtp: ',msg);
         });
         rtcp.bind(server_rtcp);
         rtcp.on('message', (msg) => {
-            console.log(msg);
+            console.debug('rtcp: ',msg);
         });
         let host = '192.168.1.72';
         let session = { server_rtcp, server_rtp, host };
