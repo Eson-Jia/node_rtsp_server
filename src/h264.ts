@@ -53,7 +53,7 @@ async function main() {
         }
         const packet: RTPPacket = {
             header: {
-                csrcCount:
+                csrcCount: 1,
             } as RTPHeader,
             payload: payload as Buffer,
         };

@@ -32,7 +32,8 @@ export interface RTPPacket {
 
 
 export async function SendRTPPacket(packet: RTPPacket, socket: Socket, client_port: number, client_ip: string) {
-    const Header = Buffer.from([1, 2, 3, 4, 5]);
+    const Header = Buffer.alloc(11);
+    //set header
     return new Promise((resolve, reject) => {
         socket.send(Buffer.concat([Header, packet.payload]), client_port, client_ip, (err, bytes) => {
             if (err)
@@ -41,17 +42,3 @@ export async function SendRTPPacket(packet: RTPPacket, socket: Socket, client_po
         });
     });
 }
-
-function main() {
-    const rtp = createSocket('udp4');
-    rtp.bind(12345, '0.0.0.0');
-    rtp.on('message', (msg: Buffer, rinfo: RemoteInfo) => {
-        console.debug('from ', rinfo, 'got a message', msg);
-    });
-    setInterval(() => {
-        // rtp.send('adfadf', client_port, client_ip);
-        rtp.send(Buffer.alloc(1));
-    }, 100);
-}
-
-main();
