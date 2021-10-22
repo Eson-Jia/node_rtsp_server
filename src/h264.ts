@@ -1,5 +1,5 @@
 import { promises, createReadStream } from "fs";
-
+import { RTPHeader, RTPPacket, SendRTPPacket, timeoutPromise } from "./rtp";
 
 const MAX_RTP_PAYLOAD = 1400;
 
@@ -42,8 +42,10 @@ async function main() {
     }
 
     for (const frame of frameList) {
+        let payload = null;
         if (frame.length > MAX_RTP_PAYLOAD) {//分包
             let frags = Math.ceil(frame.length / MAX_RTP_PAYLOAD);
+            let fuHeader = 1;
             for (let index = 0; index < frags; index++) {
                 if (index === 0) {
                     // FU begin
@@ -53,22 +55,20 @@ async function main() {
                     // FU 中间
                 }
                 //填充数据
+                payload = Buffer.concat([Buffer.from([1, 2]), frame.slice(0, MAX_RTP_PAYLOAD)]);
             }
         } else {
             //填充数据
+            payload = frame;
         }
-        let payload = Buffer.from('this is payload');
-        const packet = RTPPakcet{
-            header: {
-
-            },
-            payload:
+        const packet: RTPPacket = {
+            header: {} as any,
+            payload: payload as Buffer,
         };
+        await SendRTPPacket(packet, 123 as any, 8554, '123123');
+        await timeoutPromise(100);
     }
 };
 
 main();
 
-function RTPPakcet() {
-    throw new Error("Function not implemented.");
-}

@@ -1,4 +1,7 @@
 import { createSocket, RemoteInfo, Socket } from "dgram";
+import { promisify } from "util";
+
+export const timeoutPromise = promisify(setTimeout);
 
 export interface RTPHeader {
 
@@ -28,14 +31,16 @@ export interface RTPPacket {
 };
 
 
-export function SendRTPPacket(packet: RTPPacket, socket: Socket, client_port: number, client_ip: string) {
-    let buffer = Buffer.alloc(1500);
+export async function SendRTPPacket(packet: RTPPacket, socket: Socket, client_port: number, client_ip: string) {
+    const Header = Buffer.from([1, 2, 3, 4, 5]);
+    return new Promise((resolve, reject) => {
+        socket.send(Buffer.concat([Header, packet.payload]), client_port, client_ip, (err, bytes) => {
+            if (err)
+                reject(err);
+            resolve(bytes);
+        });
+    });
 }
-
-
-
-const client_ip = '192.168.1.200';
-const client_port = 9832;
 
 function main() {
     const rtp = createSocket('udp4');
