@@ -30,3 +30,17 @@ rtp.send(content, 8554, 'localhost', (err, bytes) => {
     console.log(err, bytes);
 });
 
+
+
+
+
+function main1() {
+    let stream = createReadStream('./test.h264');
+    stream.on('readable', () => {
+        const buffer = stream.read(1400);
+        let bufferList = new Array();
+        console.log(buffer.indexOf(new Uint8Array([0x00, 0x00, 0x00, 0x01])));
+    });
+}
+
+// main1();

@@ -1,22 +1,12 @@
-import { promises, createReadStream } from "fs";
+import { promises } from "fs";
 import { RTPHeader, RTPPacket, SendRTPPacket, timeoutPromise } from "./rtp";
+
 
 const MAX_RTP_PAYLOAD = 1400;
 
 const startCode3 = new Uint8Array([0x00, 0x00, 0x01]);
 
 const startCode4 = new Uint8Array([0x00, 0x00, 0x00, 0x01]);
-
-function main1() {
-    let stream = createReadStream('./test.h264');
-    stream.on('readable', () => {
-        const buffer: Buffer = stream.read(1400);
-        let bufferList = new Array();
-        console.log(buffer.indexOf(new Uint8Array([0x00, 0x00, 0x00, 0x01])));
-    });
-}
-
-// main1();
 
 async function main() {
     const fullFile = await promises.readFile('./test.h264');
@@ -62,7 +52,9 @@ async function main() {
             payload = frame;
         }
         const packet: RTPPacket = {
-            header: {} as any,
+            header: {
+                csrcCount:
+            } as RTPHeader,
             payload: payload as Buffer,
         };
         await SendRTPPacket(packet, 123 as any, 8554, '123123');
