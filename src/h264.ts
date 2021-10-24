@@ -1,5 +1,13 @@
 import { promises } from "fs";
-import { RTPHeader, RTPPacket, SendRTPPacket, timeoutPromise } from "./rtp";
+import {
+    initRTPPacket,
+    RTP_PAYLOAD_TYPE_H264,
+    RTP_VERSION,
+    RTPHeader,
+    RTPPacket,
+    SendRTPPacket,
+    timeoutPromise
+} from "./rtp";
 
 
 const MAX_RTP_PAYLOAD = 1400;
@@ -10,6 +18,7 @@ const startCode4 = new Uint8Array([0x00, 0x00, 0x00, 0x01]);
 
 async function main() {
     const fullFile = await promises.readFile('./test.h264');
+    const fps = 25;
     let nextBegin = 0;
     let frameList = new Array<Buffer>();
     while (true) {
@@ -33,6 +42,7 @@ async function main() {
 
     for (const frame of frameList) {
         let payload = null;
+        let packet = initRTPPacket(0,0,0,RTP_VERSION,RTP_PAYLOAD_TYPE_H264,0,0,0,0x88923423);
         if (frame.length > MAX_RTP_PAYLOAD) {//分包
             let frags = Math.ceil(frame.length / MAX_RTP_PAYLOAD);
             let fuHeader = 1;
@@ -51,12 +61,6 @@ async function main() {
             //填充数据
             payload = frame;
         }
-        const packet: RTPPacket = {
-            header: {
-                csrcCount: 1,
-            } as RTPHeader,
-            payload: payload as Buffer,
-        };
         await SendRTPPacket(packet, 123 as any, 8554, '123123');
         await timeoutPromise(100);
     }
