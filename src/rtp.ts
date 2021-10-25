@@ -1,5 +1,5 @@
-import {Socket} from "dgram";
-import {promisify} from "util";
+import { Socket } from "dgram";
+import { promisify } from "util";
 
 export const timeoutPromise = promisify(setTimeout);
 
