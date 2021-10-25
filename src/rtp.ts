@@ -86,9 +86,9 @@ export async function SendRTPPacket(packet: RTPPacket, socket: Socket, client_po
     const Header = Buffer.alloc(12);
     Header.writeUInt8(csrcCount | extention << 4 | padding << 5 | version << 6, 0);
     Header.writeUInt8(marker << 7 | payloadType, 1);
-    Header.writeUInt16LE(seq, 2);
-    Header.writeUInt32LE(timestamp, 4);
-    Header.writeUInt32LE(ssrc, 8);
+    Header.writeUInt16BE(seq, 2);
+    Header.writeUInt32BE(timestamp, 4);
+    Header.writeUInt32BE(ssrc, 8);
     //set header
     return new Promise((resolve, reject) => {
         socket.send(Buffer.concat([Header, packet.payload]), client_port, client_ip, (err, bytes) => {
