@@ -84,8 +84,8 @@ export async function SendRTPPacket(packet: RTPPacket, socket: Socket, client_po
         }
     } = packet;
     const Header = Buffer.alloc(12);
-    Header.writeInt8(csrcCount | extention << 4 | padding << 5 | version << 6, 0);
-    Header.writeInt8(marker << 7 | payloadType, 0);
+    Header.writeUInt8(csrcCount | extention << 4 | padding << 5 | version << 6, 0);
+    Header.writeUInt8(marker << 7 | payloadType, 1);
     Header.writeUInt16LE(seq, 2);
     Header.writeUInt32LE(timestamp, 4);
     Header.writeUInt32LE(ssrc, 8);
