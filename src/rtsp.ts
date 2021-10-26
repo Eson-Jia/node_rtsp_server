@@ -68,6 +68,9 @@ export function handle(session: Session, req: string, cb: CB) {
         case 'PLAY':
             handlePlay(session, CSeq, cb);
             break;
+        case 'TEARDOWN':
+            handleTearDown(session, CSeq, cb);
+            break;
         case null:
             throw new Error(`null method`);
         default:
@@ -121,6 +124,14 @@ export async function handlePlay(session: Session, CSeq: string, cb: CB) {
 CSeq: ${CSeq}\r
 Range: npt=0.000-\r
 Session: 66334873; timeout=60\r\n\r\n`;
+    cb(response);
+}
+
+export async function handleTearDown(session: Session, CSeq: string, cb: CB) {
+    session.pair?.shutdown();
+    const response =
+        `RTSP/1.0 200 OK\r
+CSeq: ${CSeq}\r\n\r\n`;
     cb(response);
 }
 
