@@ -8,7 +8,7 @@ export const RTP_PAYLOAD_TYPE_H264 = 96;
 
 export interface RTPHeader {
 
-    // byte 0
+    // byte 0 注意从上到下 bit 位逐渐升高. version 在最高的 2bit
     csrcCount: any, //4b
     extention: any,//1b
     padding: any,//1b
