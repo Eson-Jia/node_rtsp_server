@@ -3,7 +3,13 @@ import { initRTPPacket, RTP_PAYLOAD_TYPE_H264, RTP_VERSION, SendRTPPacket, timeo
 import { createSocket } from "dgram";
 
 
-const MAX_RTP_PAYLOAD = 1400;
+export const MAX_RTP_PAYLOAD = 1400;
+
+export const startCode3 = new Uint8Array([0x00, 0x00, 0x01]);
+
+export const startCode4 = new Uint8Array([0x00, 0x00, 0x00, 0x01]);
+
+export const fps = 25;
 
 const CLIENT_PORT = 9832;
 
@@ -11,17 +17,13 @@ const CLIENT_IP = '192.168.1.200';
 
 const BIND_PORT = 1234;
 
-const startCode3 = new Uint8Array([0x00, 0x00, 0x01]);
-
-const startCode4 = new Uint8Array([0x00, 0x00, 0x00, 0x01]);
-
 async function main() {
     const fullFile = await promises.readFile('./test.h264');
     const rtp = createSocket("udp4");
     await new Promise((resolve) => {
         rtp.bind(BIND_PORT, "0.0.0.0", () => resolve(null));
     });
-    const fps = 25;
+
     let nextBegin = 0;
     let frameList = new Array<Buffer>();
     while (true) {

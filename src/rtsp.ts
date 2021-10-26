@@ -1,17 +1,17 @@
-import { createSocket } from "dgram";
+import { createSocket, Socket as uSocket } from "dgram";
 import { createServer } from "net";
 
-const splitter = '\r\n\r\n';
-const line_splitter = '\r\n';
+export const splitter = '\r\n\r\n';
+export const line_splitter = '\r\n';
 
-type CB = (response: string) => void;
+export type CB = (response: string) => void;
 
-function getReq(session: any, req: string, cb: CB) {
+export function getReq(session: Session, req: string, cb: CB) {
     console.debug(`get req:${req}`);
     handle(session, req, cb);
 }
 
-function getLine(req: string): [string, string] {
+export function getLine(req: string): [string, string] {
     let pos = req.indexOf(line_splitter);
     if (pos === -1) {
         return [req, ''];
@@ -19,7 +19,7 @@ function getLine(req: string): [string, string] {
     return [req.substring(0, pos + line_splitter.length), req.substr(pos + line_splitter.length)];
 }
 
-function getMethod(params: string): string | null {
+export function getMethod(params: string): string | null {
     const result = /(.*) .* .*/.exec(params);
     if (!result) {
         return null;
@@ -35,7 +35,7 @@ function getCSeq(params: string): string | null {
     return result[1];
 }
 
-function getPort(content: string): [number, number] {
+export function getPort(content: string): [number, number] {
     const result = /(\d+)-(\d+)/.exec(content);
     if (!result || result.length < 3) {
         throw new Error("can not parse rtp");
@@ -44,7 +44,7 @@ function getPort(content: string): [number, number] {
     return [parseInt(result[1]), parseInt(result[2])];
 }
 
-function handle(session: any, req: string, cb: CB) {
+export function handle(session: Session, req: string, cb: CB) {
     let [first, left] = getLine(req);
     const method = getMethod(first);
     const CSeq = getCSeq(left);
@@ -73,7 +73,7 @@ function handle(session: any, req: string, cb: CB) {
     }
 }
 
-function handleOptions(session: any, CSeq: string, cb: CB) {
+export function handleOptions(session: Session, CSeq: string, cb: CB) {
     const response =
         `RTSP/1.0 200 OK\r
 CSeq: ${CSeq}\r
@@ -81,7 +81,7 @@ Public: OPTIONS, DESCRIBE, SETUP, PLAY\r\n\r\n`;
     cb(response);
 }
 
-function handleDescribe(session: any, CSeq: string, cb: CB) {
+export function handleDescribe(session: Session, CSeq: string, cb: CB) {
     const sdp =
         `v=0\r
 o=- 91565340853 1 IN IP4 ${session.host}\r
@@ -99,7 +99,7 @@ Content-Length: ${sdp.length}\r\n\r\n${sdp}`;
 }
 
 
-function handleSetup(session: any, CSeq: string, cb: CB) {
+export function handleSetup(session: Session, CSeq: string, cb: CB) {
     const { client_rtp, client_rtcp, server_rtp, server_rtcp } = session;
     const response =
         `RTSP/1.0 200 OK\r
@@ -108,7 +108,8 @@ Transport: RTP/AVP;unicast;client_port=${client_rtp}-${client_rtcp};server_port=
 Session: 66334873\r\n\r\n`;
     cb(response);
 }
-function handlePlay(session: any, CSeq: string, cb: CB) {
+
+export function handlePlay(session: Session, CSeq: string, cb: CB) {
     const response =
         `RTSP/1.0 200 OK\r
 CSeq: ${CSeq}\r
@@ -116,6 +117,14 @@ Range: npt=0.000-\r
 Session: 66334873; timeout=60\r\n\r\n`;
     cb(response);
 }
+
+export interface Session {
+    clientHost: string,
+    clientRTPPort?: number,
+    clientRTCPPort?: number,
+    serverRTPSocket?: uSocket,
+    serverRTCPSocket?: uSocket,
+};
 
 function main() {
     const server = createServer((socket) => {
@@ -141,7 +150,7 @@ function main() {
                     console.log(`response:${response}`);
                     socket.write(response);
                 };
-                getReq(session, data.substring(0, end + splitter.length), cb);
+                getReq(session as any, data.substring(0, end + splitter.length), cb);
                 data = data.substr(end + splitter.length);
                 // console.log(data);
             }

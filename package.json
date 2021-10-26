@@ -4,7 +4,7 @@
   "description": "a demo show how to use ts in node.js env",
   "main": "index.js",
   "scripts": {
-    "rtsp": "node dist/main.js",
+    "rtsp": "node dist/rtsp.js",
     "rtp": "node dist/rtp.js"
   },
   "repository": {
