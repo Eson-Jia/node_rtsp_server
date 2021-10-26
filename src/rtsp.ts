@@ -7,8 +7,6 @@ export const line_splitter = '\r\n';
 
 export type CB = (response: string) => void;
 
-// export type SetupCB = (file: string, clientHost: string, clientRTPPort: number, clientRTCPPort: number) => Promise<[number, number]>;
-
 export function getReq(session: Session, req: string, cb: CB) {
     console.debug(`get req:${req}`);
     handle(session, req, cb);
