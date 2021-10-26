@@ -4,10 +4,6 @@ import { createServer } from "net";
 const splitter = '\r\n\r\n';
 const line_splitter = '\r\n';
 
-function listen() {
-    console.info('listen');
-}
-
 type CB = (response: string) => void;
 
 function getReq(session: any, req: string, cb: CB) {
@@ -127,11 +123,11 @@ function main() {
         const [server_rtp, server_rtcp] = [12345, 12346];
         rtp.bind(server_rtp);
         rtp.on('message', (msg) => {
-            console.debug('rtp: ',msg);
+            console.debug('rtp: ', msg);
         });
         rtcp.bind(server_rtcp);
         rtcp.on('message', (msg) => {
-            console.debug('rtcp: ',msg);
+            console.debug('rtcp: ', msg);
         });
         let host = '192.168.1.72';
         let session = { server_rtcp, server_rtp, host };
@@ -151,7 +147,7 @@ function main() {
             }
         });
     });
-    server.listen(8554, '0.0.0.0', listen);
+    server.listen(8554, '0.0.0.0', () => console.log('server llisten on 8554'));
 }
 
 main();
