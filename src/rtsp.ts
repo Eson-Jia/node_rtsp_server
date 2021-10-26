@@ -1,10 +1,13 @@
-import { createSocket, Socket as uSocket } from "dgram";
+import { createSocket } from "dgram";
 import { createServer } from "net";
+import { RTPPair } from "./rtp";
 
 export const splitter = '\r\n\r\n';
 export const line_splitter = '\r\n';
 
 export type CB = (response: string) => void;
+
+// export type SetupCB = (file: string, clientHost: string, clientRTPPort: number, clientRTCPPort: number) => Promise<[number, number]>;
 
 export function getReq(session: Session, req: string, cb: CB) {
     console.debug(`get req:${req}`);
@@ -59,8 +62,7 @@ export function handle(session: Session, req: string, cb: CB) {
             handleDescribe(session, CSeq, cb);
             break;
         case 'SETUP':
-            const [rtp, rtcp] = getPort(left);
-            session = Object.assign(session, { client_rtp: rtp, client_rtcp: rtcp });
+            [session.clientRTPPort, session.clientRTCPPort] = getPort(left);
             handleSetup(session, CSeq, cb);
             break;
         case 'PLAY':
@@ -84,11 +86,11 @@ Public: OPTIONS, DESCRIBE, SETUP, PLAY\r\n\r\n`;
 export function handleDescribe(session: Session, CSeq: string, cb: CB) {
     const sdp =
         `v=0\r
-o=- 91565340853 1 IN IP4 ${session.host}\r
+o=- 91565340853 1 IN IP4 ${session.serverHost}\r
 t=0 0\r
 a=control:*\r
 m=video 0 RTP/AVP 96\r
-a=rtpmap:96 H264/900000\r
+a=rtpmap:96 H264/90000\r
 a=control:rtsp://192.168.1.72:8554/test/track0`;
     const response =
         `RTSP/1.0 200 OK\r
@@ -99,17 +101,21 @@ Content-Length: ${sdp.length}\r\n\r\n${sdp}`;
 }
 
 
-export function handleSetup(session: Session, CSeq: string, cb: CB) {
-    const { client_rtp, client_rtcp, server_rtp, server_rtcp } = session;
+export async function handleSetup(session: Session, CSeq: string, cb: CB) {
+    const { clientRTPPort, clientRTCPPort, clientHost } = session;
+    const pair = new RTPPair('./test.h264', clientHost, clientRTPPort as number, clientRTCPPort as number);
+    const [serverRTPPort, serverRTCPPort] = await pair.bind();
+    session.pair = pair;
     const response =
         `RTSP/1.0 200 OK\r
 CSeq: ${CSeq}\r
-Transport: RTP/AVP;unicast;client_port=${client_rtp}-${client_rtcp};server_port=${server_rtp}-${server_rtcp}\r
+Transport: RTP/AVP;unicast;client_port=${clientRTPPort}-${clientRTCPPort};server_port=${serverRTPPort}-${serverRTCPPort}\r
 Session: 66334873\r\n\r\n`;
     cb(response);
 }
 
-export function handlePlay(session: Session, CSeq: string, cb: CB) {
+export async function handlePlay(session: Session, CSeq: string, cb: CB) {
+    session.pair?.startSend();
     const response =
         `RTSP/1.0 200 OK\r
 CSeq: ${CSeq}\r
@@ -119,11 +125,11 @@ Session: 66334873; timeout=60\r\n\r\n`;
 }
 
 export interface Session {
+    serverHost: string,
     clientHost: string,
     clientRTPPort?: number,
     clientRTCPPort?: number,
-    serverRTPSocket?: uSocket,
-    serverRTCPSocket?: uSocket,
+    pair?: RTPPair,
 };
 
 function main() {
@@ -139,7 +145,12 @@ function main() {
             console.debug('rtcp: ', msg);
         });
         let host = '192.168.1.72';
-        let session = { server_rtcp, server_rtp, host };
+        if (!socket.remoteAddress)
+            throw new Error('remote address is null');
+        let session = {
+            serverHost: host,
+            clientHost: socket.remoteAddress,
+        };
         let data = '';
         socket.on('data', (buffer) => {
             data += buffer;
@@ -150,13 +161,13 @@ function main() {
                     console.log(`response:${response}`);
                     socket.write(response);
                 };
-                getReq(session as any, data.substring(0, end + splitter.length), cb);
+                getReq(session, data.substring(0, end + splitter.length), cb);
                 data = data.substr(end + splitter.length);
-                // console.log(data);
             }
         });
     });
     server.listen(8554, '0.0.0.0', () => console.log('server llisten on 8554'));
 }
 
-main();
+// 已经不可以用了
+// main();

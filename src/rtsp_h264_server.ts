@@ -1,53 +1,21 @@
-import { createServer, Socket } from "net";
-import { AddressInfo } from "node:net";
-import { getReq, Session } from "./rtsp";
-
-const splitter = '\r\n\r\n';
-const line_splitter = '\r\n';
-
-
-function getLine(req: string): [string, string] {
-    let pos = req.indexOf(line_splitter);
-    if (pos === -1) {
-        return [req, ''];
-    }
-    return [req.substring(0, pos + line_splitter.length), req.substr(pos + line_splitter.length)];
-}
-
-function getMethod(params: string): string | null {
-    const result = /(.*) .* .*/.exec(params);
-    if (!result) {
-        return null;
-    }
-    return result[1];
-}
-
-function getCSeq(params: string): string | null {
-    const result = /CSeq\: (\d+)/.exec(params);
-    if (!result) {
-        return null;
-    }
-    return result[1];
-}
-
-function getPort(content: string): [number, number] {
-    const result = /(\d+)-(\d+)/.exec(content);
-    if (!result || result.length < 3) {
-        throw new Error("can not parse rtp");
-
-    }
-    return [parseInt(result[1]), parseInt(result[2])];
-}
+import { createServer, Socket, Server } from "net";
+import { getReq, Session, splitter } from "./rtsp";
 
 export class RTSPServer {
-    constructor(port: number,) {
-        this.sessionMap = new Map<string, Session>();
+    constructor(readonly port: number, readonly host: string) {
+        this.server = createServer(this.connection);
     }
-    sessionMap: Map<string, Session>;
-    connection(socket: Socket) {
+    listen() {
+        this.server.listen(this.port, '0.0.0.0', () => console.log('server llisten on ', this.port));
+    }
+    server: Server;
+    private connection(socket: Socket) {
         let data = '';
+        if (!socket.remoteAddress)
+            throw new Error('socket remote address is empty');
         let session: Session = {
-            clientHost: (socket.address() as AddressInfo).address,
+            clientHost: socket.remoteAddress,
+            serverHost: socket.localAddress,
         };
         socket.on('data', (buffer) => {
             data += buffer;
@@ -62,6 +30,12 @@ export class RTSPServer {
             }
         });
     }
-    const server = createServer();
-    server.listen(8554, '0.0.0.0', () => console.log('server llisten on 8554'));
+
 };
+
+function run() {
+    const server = new RTSPServer(8554, '192.168.1.72');
+    server.listen();
+}
+
+run();

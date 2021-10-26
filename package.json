@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "rtsp": "node dist/rtsp.js",
-    "rtp": "node dist/rtp.js"
+    "rtp": "node dist/rtp.js",
+    "rtsp_h264": "node dist/rtsp_h264_server.js"
   },
   "repository": {
     "type": "git",
