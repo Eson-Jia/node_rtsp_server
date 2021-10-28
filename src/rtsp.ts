@@ -1,6 +1,7 @@
 import { createSocket } from "dgram";
 import { createServer } from "net";
 import { RTPPair } from "./rtp";
+import { fps, RTP_H264 } from "./rtp_h264";
 
 export const splitter = '\r\n\r\n';
 export const line_splitter = '\r\n';
@@ -104,7 +105,7 @@ Content-Length: ${sdp.length}\r\n\r\n${sdp}`;
 
 export async function handleSetup(session: Session, CSeq: string, cb: CB) {
     const { clientRTPPort, clientRTCPPort, clientHost } = session;
-    const pair = new RTPPair('./test.h264', clientHost, clientRTPPort as number, clientRTCPPort as number);
+    const pair = new RTP_H264('./test.h264', clientHost, clientRTPPort as number, clientRTCPPort as number, fps);
     const [serverRTPPort, serverRTCPPort] = await pair.bind();
     session.pair = pair;
     const response =
