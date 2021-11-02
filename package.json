@@ -6,7 +6,7 @@
   "scripts": {
     "rtsp": "node dist/rtsp.js",
     "rtp": "node dist/rtp.js",
-    "rtsp_h264": "node dist/rtsp_h264_server.js",
+    "rtsp_h264_server": "node dist/rtsp_h264_server.js",
     "rtp_aac": "node dist/rtp_aac.js"
   },
   "repository": {
