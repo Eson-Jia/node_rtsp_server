@@ -12,7 +12,6 @@ function parseASDTSHeader(buffer: Buffer): ADTSHeader {
     if (byte0 !== 0xFF || (byte1 & 0xF0) !== 0xF0)
         throw new Error("malfromed adts header");
 
-
     return {
         syncWord: 0xFFF,
         id: (byte1 & 0x08) >> 3,
@@ -26,7 +25,8 @@ function parseASDTSHeader(buffer: Buffer): ADTSHeader {
         home: (byte3 & 0x10) >> 4,
         copyrightIdentificationBit: (byte3 & 0x08) >> 3,
         copyrightIdentificationStart: (byte3 & 0x04) >> 2,
-        aacFrameLength: (((byte5 & 0x1f) << 6) | (byte6 & 0xfc) >> 2),
+        aacFrameLength: (byte3 & 0x03) << 11 | (byte4 & 0xFF) << 3 | (byte5 & 0xE0) >> 5,
+        adtsBufferFullness: (byte5 & 0x1F) << 6 | (byte6 & 0xFC) >> 2,
         numberOfRawDataBlockInFrame: byte6 & 0x03,
     } as ADTSHeader;
 }
