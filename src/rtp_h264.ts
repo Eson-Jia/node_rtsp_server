@@ -96,11 +96,19 @@ export class RTP_H264 extends RTPPair {
                 if (nextBegin !== 0)
                     frameList.push(fullFile.slice(nextBegin, index3));
                 nextBegin = index3 + 3;
-            } else {
-                // 开始码为 0 0 0 1
-                if (nextBegin !== 0)
-                    frameList.push(fullFile.slice(nextBegin, index4));
-                nextBegin = index4 + 4;
+            } else {// 开始码 0 0 1 和 0 0 0 1 都搜索到了
+                if (index4 < index3) {//开始码 0 0 0 1
+                    if (nextBegin !== 0)
+                        frameList.push(fullFile.slice(nextBegin, index4));
+                    nextBegin = index4 + 4;
+                } else if (index4 > index3) {//开始码 0 0 1
+                    if (nextBegin !== 0)
+                        frameList.push(fullFile.slice(nextBegin, index3));
+                    nextBegin = index3 + 3;
+                } else {
+                    throw new Error('0 0 0 1 === 0 0 1');
+                }
+
             }
         }
         let packet = initRTPPacket(0, 0, 0, RTP_VERSION, RTP_PAYLOAD_TYPE_H264, 0, 0, 0, 0x88923423);
