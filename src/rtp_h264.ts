@@ -143,9 +143,13 @@ export class RTP_H264 extends RTPPair {
                 console.log(`send full frame byte:${sendBytes}`);
                 packet.header.seq++;
             }
-            if ((naluType & 0x1f) !== 7 && (naluType & 0x1f) !== 8) {
-                packet.header.timestamp += 90000 / this.fps;
-            }
+            // 如果 NALU 类型是 SEI/SPS/PPS/AUD,则不需要增加 rtp 头中的时间戳,也不需要等待
+            if ((naluType & 0x1f) === 6 || //SEI
+                (naluType & 0x1f) === 7 || //SPS
+                (naluType & 0x1f) === 8 || //PPS
+                (naluType & 0x1f) === 9)   //AUD
+                continue;
+            packet.header.timestamp += 90000 / this.fps;
             await timeoutPromise(1000 / this.fps);
         }
     }
