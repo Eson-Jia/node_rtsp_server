@@ -115,6 +115,7 @@ export class RTP_H264 extends RTPPair {
         for (let frame of frameList) {
             if (this.finished)
                 break;
+            const start = Date.now();
             const naluType = frame[0];
             if (frame.length > MAX_RTP_PAYLOAD) {
                 //分包
@@ -150,7 +151,7 @@ export class RTP_H264 extends RTPPair {
                 (naluType & 0x1f) === 9)   //AUD
                 continue;
             packet.header.timestamp += 90000 / this.fps;
-            await timeoutPromise(1000 / this.fps);
+            await timeoutPromise(1000 / this.fps - (Date.now() - start));
         }
     }
 };
