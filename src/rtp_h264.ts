@@ -112,10 +112,10 @@ export class RTP_H264 extends RTPPair {
             }
         }
         let packet = initRTPPacket(0, 0, 0, RTP_VERSION, RTP_PAYLOAD_TYPE_H264, 0, 0, 0, 0x88923423);
+        let start = -1;
         for (let frame of frameList) {
             if (this.finished)
                 break;
-            const start = Date.now();
             const naluType = frame[0];
             if (frame.length > MAX_RTP_PAYLOAD) {
                 //分包
@@ -144,14 +144,20 @@ export class RTP_H264 extends RTPPair {
                 console.log(`send full frame byte:${sendBytes}`);
                 packet.header.seq++;
             }
+            if (start === -1) {
+                start = Date.now();
+            }
             // 如果 NALU 类型是 SEI/SPS/PPS/AUD,则不需要增加 rtp 头中的时间戳,也不需要等待
             if ((naluType & 0x1f) === 6 || //SEI
                 (naluType & 0x1f) === 7 || //SPS
                 (naluType & 0x1f) === 8 || //PPS
                 (naluType & 0x1f) === 9)   //AUD
                 continue;
+            // 虽然四种 Type 没有睡眠,但是发送还是需要一定的时间
+            // 现在需要注意一个事情就是, sleep 要跟发送的 rtp timestamp 保持同步
             packet.header.timestamp += 90000 / this.fps;
             await timeoutPromise(1000 / this.fps - (Date.now() - start));
+            start = Date.now();
         }
     }
 };
