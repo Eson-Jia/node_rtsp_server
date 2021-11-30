@@ -79,8 +79,9 @@ export class RTP_AAC extends RTPPair {
     }
 };
 
-function main() {
-    let pair = new RTP_AAC('./test.aac', '192.168.1.72', 9832, 9833, 0);
+async function main() {
+    let pair = new RTP_AAC('./dance.aac', '192.168.1.200', 9832, 9833, 0);
+    await pair.bind();
     pair.startSend();
 }
 
