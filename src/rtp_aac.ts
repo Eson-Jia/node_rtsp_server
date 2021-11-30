@@ -54,7 +54,7 @@ export interface ADTSHeader {
 export class RTP_AAC extends RTPPair {
     async startSend() {
         const fh = await promises.open(this.file, 'r');
-        let packet = initRTPPacket(0, 0, 0, RTP_VERSION, RTP_PAYLOAD_TYPE_AAC, 0, 0, 0, 0x32411);
+        let packet = initRTPPacket(0, 0, 0, RTP_VERSION, RTP_PAYLOAD_TYPE_AAC, 1, 0, 0, 0x32411);
         while (true) {
             if (this.finished)
                 break;
