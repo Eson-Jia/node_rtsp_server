@@ -18,7 +18,7 @@ function parseASDTSHeader(buffer: Buffer): ADTSHeader {
         layer: (byte1 & 0x06) >> 1,
         protectionABsent: byte1 & 0x01,
         profile: (byte2 & 0xc0) >> 6,
-        sampleFreqIndex: (byte2 & 0xc0) >> 6,
+        sampleFreqIndex: (byte2 & 0x3c) >> 2,
         privateBit: (byte2 & 0x02) >> 2,
         channelConfig: (byte2 & 0x01) << 2 | (byte3 & 0xc0) >> 6,
         originalCopy: (byte3 & 0x20) >> 5,
