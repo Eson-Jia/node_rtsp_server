@@ -72,6 +72,8 @@ export class RTP_AAC extends RTPPair {
             const fistFour = Buffer.from([0x00, 0x10, (0xffe0 & AACDataLength) >> 5, (0x1f & AACDataLength) << 3]);
             packet.payload = Buffer.concat([fistFour, AACData]);
             await SendRTPPacket(packet, this.rtp, this.clientRTPPort, this.clientHost);
+            packet.header.seq++;
+            packet.header.timestamp += 1025;
             await timeoutPromise(23);
         }
     }
